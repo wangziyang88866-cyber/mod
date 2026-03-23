@@ -1,0 +1,33 @@
+package net.mcreator.ziyangsitem.procedures;
+
+/* imports omitted */
+
+public class MmagicswordShiTiHuiDongWuPinShiProcedure {
+	public static void execute(LevelAccessor world, double x, double y, double z, Entity entity, ItemStack itemstack) {
+		if (entity == null)
+			return;
+		ZiyangsitemMod.queueServerWork(20, () -> {
+			if (world instanceof ServerLevel _level)
+				_level.sendParticles((SimpleParticleType) (ZiyangsitemModParticleTypes.LIZI.get()), x, y, z, 150, 3, 3, 3, 0.1);
+			if (world instanceof ServerLevel _level)
+				_level.getServer().getCommands().performPrefixedCommand(new CommandSourceStack(CommandSource.NULL, new Vec3(x, y, z), Vec2.ZERO, _level, 4, "", Component.literal(""), _level.getServer(), null).withSuppressedOutput(),
+						"execute as @p at @s run effect give @e[distance=0.1..8,type=!player] minecraft:slowness 2 4 true");
+			if (world instanceof ServerLevel _level)
+				_level.getServer().getCommands().performPrefixedCommand(new CommandSourceStack(CommandSource.NULL, new Vec3(x, y, z), Vec2.ZERO, _level, 4, "", Component.literal(""), _level.getServer(), null).withSuppressedOutput(),
+						"execute as @p at @s run particle minecraft:warped_spore ~ ~ ~ 3 3 3 0.2 170 normal @a");
+			if (entity instanceof Player _player)
+				_player.getCooldowns().addCooldown(itemstack.getItem(), 100);
+			entity.hurt(new DamageSource(world.holderOrThrow(DamageTypes.FREEZE)), 1);
+			if (entity instanceof ServerPlayer _player) {
+				AdvancementHolder _adv = _player.server.getAdvancements().get(ResourceLocation.parse("ziyangsitem:ffreeze"));
+				if (_adv != null) {
+					AdvancementProgress _ap = _player.getAdvancements().getOrStartProgress(_adv);
+					if (!_ap.isDone()) {
+						for (String criteria : _ap.getRemainingCriteria())
+							_player.getAdvancements().award(_adv, criteria);
+					}
+				}
+			}
+		});
+	}
+}
